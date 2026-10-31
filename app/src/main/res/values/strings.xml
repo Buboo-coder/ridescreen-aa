@@ -42,7 +42,7 @@
     <string name="buttons_teach_remote_wait">Press a button on the remote…</string>
     <string name="buttons_teach_remote_ok">Mapped %1$s → %2$s</string>
     <string name="setup_aa_dpi">Android Auto text size (DPI)</string>
-    <string name="setup_aa_dpi_desc">Auto uses the bike profile. Higher DPI makes Maps / AA chrome larger (useful if the TFT font is too small).</string>
+    <string name="setup_aa_dpi_desc">Auto uses the bike profile. Higher DPI makes Maps / AA chrome larger (useful if the TFT font is too small); lower DPI (120 / 140) makes it smaller, e.g. to shrink the music bar.</string>
     <string name="setup_aa_dpi_auto">Auto</string>
     <string name="setup_bt_trigger">Connect when a Bluetooth device joins</string>
     <string name="setup_bt_trigger_desc">Optional. Pair the trigger device first (helmet remote, watch). Next time it connects, RideScreen AA starts Connect using the saved bike.</string>
