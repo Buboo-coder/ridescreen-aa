@@ -19,7 +19,7 @@
     <string name="fuel_loading">Getting prices…</string>
     <string name="fuel_no_location">No location yet: allow location for RideScreen AA and turn on GPS.</string>
     <string name="fuel_offline">Couldn\'t get the prices. Check your connection and try again.</string>
-    <string name="fuel_only_spain">Fuel prices are only available in Spain for now.</string>
+    <string name="fuel_only_spain">Fuel prices are only available in Spain for now. Use the buttons above to find petrol stations in Google Maps instead.</string>
     <string name="fuel_none">No stations with 95 within %1$d km.</string>
     <string name="fuel_subtitle">Gasoline 95 · within %1$d km · Ministry prices at %2$s · tap to navigate</string>
     <string name="fuel_cheapest">cheapest</string>

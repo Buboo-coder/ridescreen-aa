@@ -645,4 +645,15 @@
     <string name="open_google_maps">เปิด Google Maps</string>
     <string name="open_google_maps_short">Maps</string>
     <string name="open_google_maps_missing">ไม่พบแอป Google Maps ในเครื่อง</string>
+    <string name="nearby_fuel_query">ปั๊มน้ำมัน</string>
+    <string name="nearby_fuel_chip">ปั๊มน้ำมัน</string>
+    <string name="nearby_fuel_search">ค้นหาปั๊มน้ำมันใกล้เคียงใน Google Maps</string>
+    <string name="nearby_fuel_go_nearest">นำทางไปปั๊มที่ใกล้ที่สุด</string>
+    <string name="music_title">เพลง (เครื่องเล่นในโทรศัพท์)</string>
+    <string name="music_prev">เพลงก่อนหน้า</string>
+    <string name="music_play_pause">เล่น / หยุดชั่วคราว</string>
+    <string name="music_next">เพลงถัดไป</string>
+    <string name="music_vol_down">ลดเสียง</string>
+    <string name="music_mute">ปิดเสียง / เปิดเสียง</string>
+    <string name="music_vol_up">เพิ่มเสียง</string>
 </resources>

@@ -132,6 +132,45 @@ object NavLauncher {
         return false
     }
 
+    /**
+     * "Near me" shortcut, like the category buttons in Google Maps. [query] is a place type such as
+     * "gas station" (Maps resolves it around the phone's current position).
+     *  - [navigateNearest] = false: open the search results (list + pins) so the rider picks one.
+     *  - [navigateNearest] = true: start turn-by-turn to the closest match straight away.
+     * Follows the rider's nav-app choice (Google Maps / Waze).
+     * @return true if a nav app accepted it.
+     */
+    fun searchNearby(
+        context: Context,
+        query: String,
+        navigateNearest: Boolean,
+        log: (String) -> Unit,
+    ): Boolean {
+        val enc = Uri.encode(query.trim())
+        if (enc.isEmpty()) return false
+        if (NavApps.current(context) == NavApps.WAZE) {
+            val go = if (navigateNearest) "&navigate=yes" else ""
+            val waze = listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?q=$enc$go")).setPackage(NavApps.WAZE_PKG),
+                Intent(Intent.ACTION_VIEW, Uri.parse("waze://?q=$enc$go")),
+            )
+            if (startFirst(context, waze, "$query (Waze)", log)) return true
+            log("[NAV] Waze not available — falling back to Google Maps")
+        }
+        val intents = if (navigateNearest) {
+            listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=$enc&mode=d")).setPackage(MAPS_PKG),
+                Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$enc")).setPackage(MAPS_PKG),
+            )
+        } else {
+            listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0?q=$enc")).setPackage(MAPS_PKG),
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps/search/?api=1&query=$enc")).setPackage(MAPS_PKG),
+            )
+        }
+        return startFirst(context, intents, query, log)
+    }
+
     private fun startFirst(
         context: Context,
         intents: List<Intent>,

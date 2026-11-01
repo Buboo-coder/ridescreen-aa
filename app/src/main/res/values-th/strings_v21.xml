@@ -19,7 +19,7 @@
     <string name="fuel_loading">กำลังโหลดราคา…</string>
     <string name="fuel_no_location">ยังไม่มีตำแหน่ง: อนุญาตตำแหน่งให้ RideScreen AA และเปิด GPS</string>
     <string name="fuel_offline">โหลดราคาไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองใหม่</string>
-    <string name="fuel_only_spain">ตอนนี้ดูราคาน้ำมันได้เฉพาะในสเปน</string>
+    <string name="fuel_only_spain">ตอนนี้ดูราคาน้ำมันได้เฉพาะในสเปน ใช้ปุ่มด้านบนเพื่อค้นหาปั๊มน้ำมันใน Google Maps แทน</string>
     <string name="fuel_none">ไม่พบปั๊มที่มีเบนซิน 95 ในรัศมี %1$d km</string>
     <string name="fuel_subtitle">เบนซิน 95 · ในรัศมี %1$d km · ราคาจากกระทรวง ณ %2$s · แตะเพื่อนำทาง</string>
     <string name="fuel_cheapest">ถูกที่สุด</string>

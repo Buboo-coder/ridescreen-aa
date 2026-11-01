@@ -98,6 +98,18 @@ object QuickDestinations {
                 chip("$label +", { editPlace(activity, slot, nameRes, pickContact) { again() } })
             }
         }
+        // ⛽ near-me shortcut: tap = search results around the phone, long-press = navigate to the nearest.
+        chip("⛽ " + activity.getString(R.string.nearby_fuel_chip), {
+            val q = activity.getString(R.string.nearby_fuel_query)
+            if (!NavLauncher.searchNearby(activity, q, false, LogBus::log)) {
+                android.widget.Toast.makeText(activity, R.string.open_google_maps_missing, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }, {
+            val q = activity.getString(R.string.nearby_fuel_query)
+            if (!NavLauncher.searchNearby(activity, q, true, LogBus::log)) {
+                android.widget.Toast.makeText(activity, R.string.open_google_maps_missing, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        })
         // Which app opens the route; tap to change it.
         chip("🧭 " + NavApps.label(activity), { NavApps.choose(activity) { again() } })
         if (!hasCalendar(activity)) {

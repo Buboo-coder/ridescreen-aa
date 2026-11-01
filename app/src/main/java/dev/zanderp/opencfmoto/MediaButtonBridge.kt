@@ -938,6 +938,43 @@ class MediaButtonBridge(private val context: Context, private val log: (String) 
         @Volatile var instance: MediaButtonBridge? = null
             private set
 
+        /**
+         * Home-screen music buttons: send a media key (previous / play-pause / next) to whatever music
+         * app the phone is playing. While "Handlebar buttons drive Android Auto" is on, OUR media session
+         * is the active one and would swallow the key as a handlebar press, so it steps aside for a
+         * moment and comes back (same active-flip the bridge already does when re-announcing itself).
+         */
+        fun sendMediaKey(context: Context, keyCode: Int) {
+            val bridge = instance
+            val s = bridge?.session
+            if (bridge == null || s == null || !ButtonMode.isControlAa(context)) {
+                dispatchMediaKey(context, keyCode)
+                return
+            }
+            bridge.handler.post {
+                try {
+                    s.isActive = false
+                    bridge.handler.postDelayed({ dispatchMediaKey(context, keyCode) }, 80)
+                    bridge.handler.postDelayed({
+                        try { if (ButtonMode.isControlAa(context)) s.isActive = true } catch (_: Exception) {}
+                    }, 700)
+                    bridge.log("[BTN] on-screen media key ${KeyEvent.keyCodeToString(keyCode)} → music app")
+                } catch (e: Exception) {
+                    bridge.log("[BTN] on-screen media key failed: $e")
+                }
+            }
+        }
+
+        private fun dispatchMediaKey(context: Context, keyCode: Int) {
+            try {
+                val a = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                val t = SystemClock.uptimeMillis()
+                a.dispatchMediaKeyEvent(KeyEvent(t, t, KeyEvent.ACTION_DOWN, keyCode, 0))
+                a.dispatchMediaKeyEvent(KeyEvent(t, t, KeyEvent.ACTION_UP, keyCode, 0))
+            } catch (_: Exception) {
+            }
+        }
+
         fun injectGesture(gesture: ButtonGesture) {
             instance?.let { b -> b.handler.post { b.run(gesture) } }
         }

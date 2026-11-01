@@ -39,6 +39,7 @@ class FuelActivity : AppCompatActivity() {
     private lateinit var progress: ProgressBar
     private lateinit var btnCheap: MaterialButton
     private lateinit var btnNear: MaterialButton
+    private lateinit var sortBar: LinearLayout
     private var result: FuelStations.Result? = null
     private var byDistance = false
     private val io = Executors.newSingleThreadExecutor()
@@ -61,7 +62,21 @@ class FuelActivity : AppCompatActivity() {
             setPadding(0, dp(4), 0, dp(10))
         }
         root.addView(sub)
+        // Works anywhere: same as the "gas stations" shortcut in Google Maps.
+        val maps = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        maps.addView(MaterialButton(this).apply {
+            setText(R.string.nearby_fuel_search)
+            isAllCaps = false
+            setOnClickListener { openNearbyFuel(false) }
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        maps.addView(MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+            setText(R.string.nearby_fuel_go_nearest)
+            isAllCaps = false
+            setOnClickListener { openNearbyFuel(true) }
+        }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6); bottomMargin = dp(10) })
+        root.addView(maps)
         val bar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        sortBar = bar
         btnCheap = pill(getString(R.string.fuel_sort_price)) { byDistance = false; render() }
         btnNear = pill(getString(R.string.fuel_sort_distance)) { byDistance = true; render() }
         bar.addView(btnCheap, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
@@ -125,6 +140,12 @@ class FuelActivity : AppCompatActivity() {
         } } catch (_: java.util.concurrent.RejectedExecutionException) {}
     }
 
+    private fun openNearbyFuel(navigateNearest: Boolean) {
+        if (!NavLauncher.searchNearby(this, getString(R.string.nearby_fuel_query), navigateNearest, LogBus::log)) {
+            Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun fail(msg: String) {
         progress.visibility = View.GONE
         sub.text = msg
@@ -136,6 +157,7 @@ class FuelActivity : AppCompatActivity() {
         btnCheap.alpha = if (byDistance) 0.55f else 1f
         btnNear.alpha = if (byDistance) 1f else 0.55f
         list.removeAllViews()
+        sortBar.visibility = if (r.outsideSpain) View.GONE else View.VISIBLE
         if (r.outsideSpain) { sub.setText(R.string.fuel_only_spain); return }
         if (r.stations.isEmpty()) { sub.text = getString(R.string.fuel_none, r.radiusKm); return }
         sub.text = getString(R.string.fuel_subtitle, r.radiusKm, r.sourceTime.substringAfter(' ').substringBeforeLast(':').ifBlank { r.sourceTime })

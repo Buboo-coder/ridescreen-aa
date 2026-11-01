@@ -427,6 +427,133 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Music: control the phone's player from the home screen (helmet audio). -->
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card.OpenCfMoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/music_title"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_prev"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="0dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_prev"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="⏮"
+                                android:textSize="20sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_play"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="3dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_play_pause"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="⏯"
+                                android:textSize="20sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_next"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="3dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_next"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="⏭"
+                                android:textSize="20sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_vol_down"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="3dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_vol_down"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="🔉"
+                                android:textSize="20sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_mute"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="3dp"
+                                android:layout_marginEnd="3dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_mute"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="🔇"
+                                android:textSize="20sp" />
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/music_vol_up"
+                                style="@style/Widget.OpenCfMoto.Segment"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="3dp"
+                                android:layout_marginEnd="0dp"
+                                android:layout_weight="1"
+                                android:contentDescription="@string/music_vol_up"
+                                android:insetLeft="0dp"
+                                android:insetRight="0dp"
+                                android:minHeight="52dp"
+                                android:paddingStart="0dp"
+                                android:paddingEnd="0dp"
+                                android:text="🔊"
+                                android:textSize="20sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
                 <!-- Connected: what you use while riding. Tiles are filled in by MainActivity.setupHomeTiles(). -->
                 <LinearLayout
                     android:id="@+id/live_section"

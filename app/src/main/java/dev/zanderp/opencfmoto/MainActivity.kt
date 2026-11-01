@@ -345,6 +345,36 @@ class MainActivity : AppCompatActivity() {
         renderQuickDestinations()
     }
 
+    /** Volume to go back to when the 🔇 button is pressed a second time. */
+    private var preMuteVolume = -1
+
+    /** Home-screen music row: previous / play-pause / next, volume −/+ and mute (phone media volume). */
+    private fun setupMusicControls() {
+        fun media(id: Int, keyCode: Int) {
+            findViewById<View>(id)?.setOnClickListener { MediaButtonBridge.sendMediaKey(this, keyCode) }
+        }
+        media(R.id.music_prev, android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+        media(R.id.music_play, android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+        media(R.id.music_next, android.view.KeyEvent.KEYCODE_MEDIA_NEXT)
+        findViewById<View>(R.id.music_vol_down)?.setOnClickListener {
+            val (now, _) = MediaButtonBridge.volumeLevels(this)
+            MediaButtonBridge.setVolume(this, (now - 1).coerceAtLeast(0))
+        }
+        findViewById<View>(R.id.music_vol_up)?.setOnClickListener {
+            val (now, max) = MediaButtonBridge.volumeLevels(this)
+            MediaButtonBridge.setVolume(this, (now + 1).coerceAtMost(max))
+        }
+        findViewById<View>(R.id.music_mute)?.setOnClickListener {
+            val (now, max) = MediaButtonBridge.volumeLevels(this)
+            if (now > 0) {
+                preMuteVolume = now
+                MediaButtonBridge.setVolume(this, 0)
+            } else {
+                MediaButtonBridge.setVolume(this, if (preMuteVolume > 0) preMuteVolume else (max / 2).coerceAtLeast(1))
+            }
+        }
+    }
+
     private fun renderQuickDestinations() {
         val row = findViewById<android.widget.LinearLayout>(R.id.quick_dest) ?: return
         QuickDestinations.render(this, row, navigate = { dest ->
@@ -912,6 +942,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_hud_view).setOnClickListener { startActivity(Intent(this, HudViewActivity::class.java)) }
         findViewById<View>(R.id.btn_controls).setOnClickListener { startActivity(Intent(this, ControlsActivity::class.java)) }
         findViewById<Button>(R.id.btn_navigate).setOnClickListener { navigateToTyped() }
+        setupMusicControls()
         findViewById<Button>(R.id.btn_open_gmaps).setOnClickListener {
             if (!NavLauncher.openGoogleMaps(this, ::log)) {
                 Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
