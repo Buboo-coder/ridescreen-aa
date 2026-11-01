@@ -483,6 +483,14 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="@string/main_go" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_open_gmaps"
+                            style="@style/Widget.OpenCfMoto.Segment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/open_google_maps_short" />
                     </LinearLayout>
 
                     <!-- v2.3: one-tap destinations (home, work, upcoming calendar events with a place). -->

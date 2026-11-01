@@ -912,6 +912,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_hud_view).setOnClickListener { startActivity(Intent(this, HudViewActivity::class.java)) }
         findViewById<View>(R.id.btn_controls).setOnClickListener { startActivity(Intent(this, ControlsActivity::class.java)) }
         findViewById<Button>(R.id.btn_navigate).setOnClickListener { navigateToTyped() }
+        findViewById<Button>(R.id.btn_open_gmaps).setOnClickListener {
+            if (!NavLauncher.openGoogleMaps(this, ::log)) {
+                Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
+            }
+        }
         val destField = findViewById<android.widget.EditText>(R.id.et_destination)
         destField?.setOnEditorActionListener { _, _, _ ->
             navigateToTyped(); true

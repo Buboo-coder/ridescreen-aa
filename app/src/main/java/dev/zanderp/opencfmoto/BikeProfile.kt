@@ -182,7 +182,9 @@ object BikeProfiles {
             }
             ?: return base
         if (panel == base.panelSize) return base
-        val res = DashMemory.bestFit(panel.first, panel.second) ?: return base
+        // No exact AA size for this panel (e.g. 1024x425): still hand the real panel size to the
+        // match-aspect margins, keeping the profile's own AA resolution, so the first connect fits.
+        val res = DashMemory.bestFit(panel.first, panel.second) ?: base.aaVideo.resolution
         LogBus.log(
             "[panel] using measured ${panel.first}x${panel.second} → AA ${res.w}x${res.h} " +
                 "(was ${base.name})",

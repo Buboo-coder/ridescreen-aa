@@ -110,6 +110,28 @@ object NavLauncher {
         return startFirst(context, intents, label?.takeIf { it.isNotBlank() } ?: coord, log)
     }
 
+    /**
+     * Open the Google Maps app itself (search, saved places, voice). With Android Auto projecting,
+     * anything navigated to there is shown on the dash. Not a navigation request.
+     * @return true if Google Maps was started.
+     */
+    fun openGoogleMaps(context: Context, log: (String) -> Unit): Boolean {
+        val intents = listOf(
+            Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(MAPS_PKG),
+            Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")).setPackage(MAPS_PKG),
+        )
+        for (intent in intents) {
+            try {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+                log("[NAV] opened Google Maps")
+                return true
+            } catch (_: Exception) { /* try next */ }
+        }
+        log("[NAV] Google Maps not available — is it installed?")
+        return false
+    }
+
     private fun startFirst(
         context: Context,
         intents: List<Intent>,

@@ -72,6 +72,15 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/gpx_map_on_phone" 
                     android:minHeight="48dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gpx_open_gmaps"
+                    style="@style/Widget.OpenCfMoto.Button.Tonal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/open_google_maps"
+                    android:minHeight="48dp"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

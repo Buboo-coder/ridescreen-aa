@@ -170,6 +170,11 @@ class GpxActivity : AppCompatActivity() {
 
         findViewById<MaterialButton>(R.id.gpx_free_ride).setOnClickListener { startFreeRide() }
         findViewById<MaterialButton>(R.id.gpx_see_phone).setOnClickListener { seeMapOnPhone() }
+        findViewById<MaterialButton>(R.id.gpx_open_gmaps).setOnClickListener {
+            if (!NavLauncher.openGoogleMaps(this, LogBus::log)) {
+                android.widget.Toast.makeText(this, R.string.open_google_maps_missing, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
         findViewById<MaterialButton>(R.id.gpx_pick).setOnClickListener {
             pickLauncher.launch(arrayOf("application/gpx+xml", "application/xml", "text/xml", "*/*"))
         }
