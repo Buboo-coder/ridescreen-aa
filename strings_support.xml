@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="support_button">❤ สนับสนุนโครงการ</string>
+    <string name="support_title">สนับสนุน RideScreen AA</string>
+    <string name="support_title_play">เลี้ยง…</string>
+    <string name="support_body">RideScreen AA ใช้ฟรีและไม่มีโฆษณา หากแอปนี้ทำให้การเดินทางของคุณดีขึ้น คุณสามารถเลี้ยงกาแฟเพื่อช่วยค่าใช้จ่าย (เช่น บัญชีนักพัฒนา Google Play) ขอบคุณ!</string>
+    <string name="support_kofi">เลี้ยงกาแฟ (Ko-fi)</string>
+    <string name="support_original">สนับสนุนผู้พัฒนา OpenCfMoto</string>
+    <string name="support_later">ไว้ก่อน</string>
+    <string name="support_coffee">☕ กาแฟ</string>
+    <string name="support_sandwich">🥪 แซนด์วิช</string>
+    <string name="support_tank">⛽ เติมน้ำมันเต็มถัง</string>
+    <string name="support_thanks">ขอบคุณมาก! 🙌</string>
+    <string name="support_unavailable">ขณะนี้ยังไม่สามารถบริจาคได้ โปรดลองใหม่ภายหลัง</string>
+</resources>
