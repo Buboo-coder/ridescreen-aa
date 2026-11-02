@@ -725,7 +725,7 @@
 
                     <LinearLayout android:id="@+id/btn_trips_list" style="@style/HomeTile" android:layout_marginEnd="5dp" />
                     <LinearLayout android:id="@+id/btn_fuel" style="@style/HomeTile" android:layout_marginHorizontal="5dp" />
-                    <LinearLayout android:id="@+id/btn_maint" style="@style/HomeTile" android:layout_marginStart="5dp" />
+                    <LinearLayout android:id="@+id/btn_gmaps" style="@style/HomeTile" android:layout_marginStart="5dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -735,8 +735,8 @@
                     android:baselineAligned="false"
                     android:orientation="horizontal">
 
-                    <LinearLayout android:id="@+id/btn_traffic_lights" style="@style/HomeTile" android:layout_marginEnd="5dp" />
-                    <LinearLayout android:id="@+id/btn_live" style="@style/HomeTile" android:layout_marginHorizontal="5dp" />
+                    <LinearLayout android:id="@+id/btn_start_ride" style="@style/HomeTile" android:layout_marginEnd="5dp" />
+                    <LinearLayout android:id="@+id/btn_phone_map" style="@style/HomeTile" android:layout_marginHorizontal="5dp" />
                     <LinearLayout android:id="@+id/btn_help" style="@style/HomeTile" android:layout_marginStart="5dp" />
                 </LinearLayout>
 

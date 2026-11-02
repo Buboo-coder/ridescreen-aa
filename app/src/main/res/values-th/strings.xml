@@ -645,6 +645,12 @@
     <string name="open_google_maps">เปิด Google Maps</string>
     <string name="open_google_maps_short">Maps</string>
     <string name="open_google_maps_missing">ไม่พบแอป Google Maps ในเครื่อง</string>
+    <string name="home_tile_gmaps">Google Maps</string>
+    <string name="home_tile_gmaps_sub">เปิดแอป</string>
+    <string name="home_tile_start_ride">เริ่มเดินทาง</string>
+    <string name="home_tile_start_ride_sub">ขับอิสระบนจอรถ</string>
+    <string name="home_tile_phone_map">แผนที่บนโทรศัพท์</string>
+    <string name="home_tile_phone_map_sub">ไม่ต้องต่อจอรถ</string>
     <string name="nearby_fuel_query">ปั๊มน้ำมัน</string>
     <string name="nearby_fuel_chip">ปั๊มน้ำมัน</string>
     <string name="nearby_fuel_search">ค้นหาปั๊มน้ำมันใกล้เคียงใน Google Maps</string>

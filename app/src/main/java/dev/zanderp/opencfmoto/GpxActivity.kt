@@ -170,6 +170,19 @@ class GpxActivity : AppCompatActivity() {
 
         findViewById<MaterialButton>(R.id.gpx_free_ride).setOnClickListener { startFreeRide() }
         findViewById<MaterialButton>(R.id.gpx_see_phone).setOnClickListener { seeMapOnPhone() }
+        if (savedInstanceState == null) {
+            val auto = intent?.getStringExtra(EXTRA_AUTO)
+            if (auto != null) {
+                intent?.removeExtra(EXTRA_AUTO)
+                // post: let onCreate finish so every view field is initialised before the action runs.
+                findViewById<MaterialButton>(R.id.gpx_free_ride).post {
+                    when (auto) {
+                        AUTO_FREE_RIDE -> startFreeRide()
+                        AUTO_SEE_PHONE -> seeMapOnPhone()
+                    }
+                }
+            }
+        }
         findViewById<MaterialButton>(R.id.gpx_open_gmaps).setOnClickListener {
             if (!NavLauncher.openGoogleMaps(this, LogBus::log)) {
                 android.widget.Toast.makeText(this, R.string.open_google_maps_missing, android.widget.Toast.LENGTH_SHORT).show()
@@ -1175,6 +1188,10 @@ class GpxActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_SEARCH = "search_query"
+        /** Home-screen tiles open this page and press one of its buttons for the rider. */
+        const val EXTRA_AUTO = "auto_action"
+        const val AUTO_FREE_RIDE = "free_ride"
+        const val AUTO_SEE_PHONE = "see_phone"
 
         private val OFFLINE_SEGMENT_IDS = setOf(
             R.id.gpx_offline_detail_std,

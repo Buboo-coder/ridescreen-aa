@@ -1428,7 +1428,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView?>(R.id.stat_clock)?.text =
             java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
         renderParked()
-        renderLive()
         findViewById<TextView?>(R.id.stat_clock_label)?.setText(
             when {
                 ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
@@ -1514,15 +1513,25 @@ class MainActivity : AppCompatActivity() {
     private fun setupHomeTiles() {
         buildTile(R.id.btn_trips_list, "🏍️", 0xFF5B8DEF.toInt(), getString(R.string.home_tile_trips))
         buildTile(R.id.btn_fuel, "⛽", 0xFFE5774E.toInt(), getString(R.string.home_tile_fuel), getString(R.string.home_tile_fuel_sub))
-        buildTile(R.id.btn_maint, "🔧", 0xFF4FB6A6.toInt(), getString(R.string.home_tile_maint))
-        buildTile(R.id.btn_traffic_lights, "🚦", 0xFFE05A5A.toInt(), getString(R.string.home_tile_tl))
-        buildTile(R.id.btn_live, "📍", 0xFF5FD07A.toInt(), getString(R.string.home_tile_live))
+        buildTile(R.id.btn_gmaps, "🗺️", 0xFF4285F4.toInt(), getString(R.string.home_tile_gmaps), getString(R.string.home_tile_gmaps_sub))
+        buildTile(R.id.btn_start_ride, "🏁", 0xFFD1A955.toInt(), getString(R.string.home_tile_start_ride), getString(R.string.home_tile_start_ride_sub))
+        buildTile(R.id.btn_phone_map, "📱", 0xFF5FD07A.toInt(), getString(R.string.home_tile_phone_map), getString(R.string.home_tile_phone_map_sub))
         buildTile(R.id.btn_help, "❓", 0xFFA98BE0.toInt(), getString(R.string.home_tile_help), getString(R.string.home_tile_help_sub))
         buildTile(R.id.btn_park_photo, "📸", 0xFFD1A955.toInt(), getString(R.string.home_big_park), getString(R.string.home_big_park_sub), big = true)
         buildTile(R.id.btn_controls, "🎮", 0xFF5B8DEF.toInt(), getString(R.string.controls_controls), getString(R.string.home_big_controls_sub), big = true)
         buildTile(R.id.btn_hud_view, "🖥️", 0xFF4FB6A6.toInt(), getString(R.string.hud_dash_view), getString(R.string.home_big_hud_sub), big = true)
         buildTile(R.id.btn_trip, "⏱️", 0xFF5FD07A.toInt(), getString(R.string.home_big_trip), getString(R.string.home_big_trip_sub), big = true)
-        findViewById<View>(R.id.btn_traffic_lights)?.setOnClickListener { startActivity(Intent(this, TrafficLightsActivity::class.java)) }
+        findViewById<View>(R.id.btn_gmaps)?.setOnClickListener {
+            if (!NavLauncher.openGoogleMaps(this, ::log)) {
+                Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
+            }
+        }
+        findViewById<View>(R.id.btn_start_ride)?.setOnClickListener {
+            startActivity(Intent(this, GpxActivity::class.java).putExtra(GpxActivity.EXTRA_AUTO, GpxActivity.AUTO_FREE_RIDE))
+        }
+        findViewById<View>(R.id.btn_phone_map)?.setOnClickListener {
+            startActivity(Intent(this, GpxActivity::class.java).putExtra(GpxActivity.EXTRA_AUTO, GpxActivity.AUTO_SEE_PHONE))
+        }
         findViewById<View>(R.id.parked_walk)?.setOnClickListener {
             val spot = Parking.get(this) ?: return@setOnClickListener
             try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
@@ -1562,39 +1571,8 @@ class MainActivity : AppCompatActivity() {
             if (hero.layoutParams.height != h) { hero.layoutParams.height = h; hero.requestLayout() }
         }
         findViewById<TextView?>(R.id.hero_name)?.textSize = if (live) 34f else 46f
-        placeLiveShare(big = live)
         renderParked()
         renderPkeCard()
-    }
-
-    /**
-     * Manel (14 oct): while connected, "Ruta en directo" belongs among the big riding tiles and
-     * "Controles" can drop into the grid. Swap the two views (and their layout params) in place.
-     */
-    private fun placeLiveShare(big: Boolean) {
-        val liveTile = findViewById<android.widget.LinearLayout?>(R.id.btn_live) ?: return
-        val controls = findViewById<android.widget.LinearLayout?>(R.id.btn_controls) ?: return
-        val liveIsBig = liveTile.parent === (findViewById<View>(R.id.btn_park_photo)?.parent)
-        if (liveIsBig == big) return
-        val pa = liveTile.parent as? android.view.ViewGroup ?: return
-        val pb = controls.parent as? android.view.ViewGroup ?: return
-        val ia = pa.indexOfChild(liveTile); val ib = pb.indexOfChild(controls)
-        val la = liveTile.layoutParams; val lb = controls.layoutParams
-        pa.removeView(liveTile); pb.removeView(controls)
-        pb.addView(liveTile, ib, lb); pa.addView(controls, ia, la)
-        val dp = resources.displayMetrics.density
-        fun style(v: android.widget.LinearLayout, asBig: Boolean) {
-            v.gravity = if (asBig) (android.view.Gravity.CENTER_VERTICAL or android.view.Gravity.START) else android.view.Gravity.CENTER
-            v.minimumHeight = ((if (asBig) 112 else 108) * dp).toInt()
-            if (asBig) v.setPadding((16 * dp).toInt(), (14 * dp).toInt(), (10 * dp).toInt(), (12 * dp).toInt())
-            else v.setPadding((6 * dp).toInt(), (14 * dp).toInt(), (6 * dp).toInt(), (12 * dp).toInt())
-        }
-        style(liveTile, big); style(controls, !big)
-        buildTile(R.id.btn_live, "📍", 0xFF5FD07A.toInt(), getString(R.string.home_tile_live), big = big)
-        buildTile(R.id.btn_controls, "🎮", 0xFF5B8DEF.toInt(), getString(R.string.controls_controls),
-            getString(R.string.home_big_controls_sub), big = !big)
-        controls.setOnClickListener { startActivity(Intent(this, ControlsActivity::class.java)) }
-        renderLive()
     }
 
     // ── v2.3: battery + lock card from the keyless box (read only: PkeBattery asks only 008 + 001,7).
@@ -1707,9 +1685,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderMaint() {
-        findViewById<View?>(R.id.btn_maint)?.setOnClickListener { MaintenanceActivity.start(this) }
-        val s = try { Maintenance.mostUrgent(this) } catch (_: Exception) { null }
-        setTileSub(R.id.btn_maint, s?.let { "${it.task.name}: ${Maintenance.statusText(this, it)}" })
         val all = try { TripStore.summaries(this) } catch (_: Exception) { emptyList() }
         val trips = all.count { android.text.format.DateUtils.isToday(it.start) }
         // v2.3 · current streak (🔥 N days in a row), from 2 days on.
@@ -1719,30 +1694,6 @@ class MainActivity : AppCompatActivity() {
             if (trips > 0) resources.getQuantityString(R.plurals.home_tile_trips_today, trips, trips) else null,
         )
         setTileSub(R.id.btn_trips_list, parts.joinToString(" · ").ifBlank { null })
-    }
-
-    private fun renderLive() {
-        val box = findViewById<View?>(R.id.btn_live) ?: return
-        if (!LiveShare.available) {
-            box.alpha = 0.4f
-            box.setOnClickListener(null)
-            setTileSub(R.id.btn_live, null)
-            return
-        }
-        box.alpha = 1f
-        if (LiveShare.active) {
-            setTileSub(R.id.btn_live, getString(R.string.home_tile_live_on))
-            box.setOnClickListener {
-                LiveShare.stop()
-                Toast.makeText(this, R.string.live_stopped, Toast.LENGTH_SHORT).show()
-                renderLive()
-            }
-            box.setOnLongClickListener { LiveShare.shareLink(this); true }
-        } else {
-            setTileSub(R.id.btn_live, null)
-            box.setOnClickListener { LiveShare.begin(this) }
-            box.setOnLongClickListener(null)
-        }
     }
 
     private fun renderParked() {

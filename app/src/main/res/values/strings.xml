@@ -646,6 +646,12 @@
     <string name="open_google_maps">Open Google Maps</string>
     <string name="open_google_maps_short">Maps</string>
     <string name="open_google_maps_missing">Google Maps is not installed</string>
+    <string name="home_tile_gmaps">Google Maps</string>
+    <string name="home_tile_gmaps_sub">Open the app</string>
+    <string name="home_tile_start_ride">Start ride</string>
+    <string name="home_tile_start_ride_sub">Free ride on the dash</string>
+    <string name="home_tile_phone_map">Map on phone</string>
+    <string name="home_tile_phone_map_sub">No bike needed</string>
     <string name="nearby_fuel_query">gas station</string>
     <string name="nearby_fuel_chip">Fuel</string>
     <string name="nearby_fuel_search">Find petrol stations in Google Maps</string>
