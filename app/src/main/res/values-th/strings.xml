@@ -677,6 +677,26 @@
     <string name="fuel_log_row_date_odo">%1$s · %2$s กม.</string>
     <string name="fuel_log_row_detail">%1$.2f ลิตร × %2$.2f บาท = %3$.2f บาท</string>
     <string name="fuel_log_row_eff">%1$.1f กม./ลิตร</string>
+    <string name="home_tile_dvr">กล้องรถ</string>
+    <string name="home_tile_dvr_sub">คลิปหน้า-หลัง</string>
+    <string name="dvr_title">กล้องหน้า-หลังของรถ</string>
+    <string name="dvr_tab_videos">วิดีโอ</string>
+    <string name="dvr_tab_photos">รูปภาพ</string>
+    <string name="dvr_front">กล้องหน้า</string>
+    <string name="dvr_rear">กล้องหลัง</string>
+    <string name="dvr_connecting">กำลังเชื่อมต่อกล้อง…</string>
+    <string name="dvr_not_on_wifi">โทรศัพท์ยังไม่ได้ต่อ Wi‑Fi ของรถ (ชื่อขึ้นต้น ZT_) ให้เชื่อมต่อในการตั้งค่า Wi‑Fi หรือกดปุ่มเชื่อมต่อที่หน้าแรก แล้วลองอีกครั้ง แนะนำให้ใช้ตอนจอดรถ</string>
+    <string name="dvr_wifi_settings">ตั้งค่า Wi‑Fi</string>
+    <string name="dvr_retry">ลองอีกครั้ง</string>
+    <string name="dvr_error">ติดต่อกล้องไม่ได้ (%1$s)</string>
+    <string name="dvr_pick_day">เลือกวัน</string>
+    <string name="dvr_pick_hour">%1$s · เลือกช่วงเวลา</string>
+    <string name="dvr_empty">ไม่มีรายการในส่วนนี้</string>
+    <string name="dvr_play">เล่น</string>
+    <string name="dvr_download">ดาวน์โหลด</string>
+    <string name="dvr_play_failed">เปิดไฟล์นี้ไม่ได้</string>
+    <string name="dvr_saved">บันทึกแล้วที่ %1$s</string>
+    <string name="dvr_download_failed">ดาวน์โหลดไม่สำเร็จ (%1$s)</string>
     <string name="fuel_log_chart">กราฟการเติม</string>
     <string name="fuel_log_need_chart">เติมอย่างน้อย 3 ครั้งเพื่อดูกราฟ</string>
     <string name="fuel_log_tab_price">ราคา/ลิตร</string>

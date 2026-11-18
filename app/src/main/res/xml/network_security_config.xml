@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The bike's camera (DVR) speaks plain HTTP on its own Wi-Fi at 192.168.3.1. Nothing else may use cleartext. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">192.168.3.1</domain>
+    </domain-config>
+</network-security-config>

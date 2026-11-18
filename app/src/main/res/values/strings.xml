@@ -678,6 +678,26 @@
     <string name="fuel_log_row_date_odo">%1$s · %2$s km</string>
     <string name="fuel_log_row_detail">%1$.2f L × %2$.2f ฿ = %3$.2f ฿</string>
     <string name="fuel_log_row_eff">%1$.1f km/L</string>
+    <string name="home_tile_dvr">Bike camera</string>
+    <string name="home_tile_dvr_sub">Front &amp; rear clips</string>
+    <string name="dvr_title">Bike camera</string>
+    <string name="dvr_tab_videos">Videos</string>
+    <string name="dvr_tab_photos">Photos</string>
+    <string name="dvr_front">Front</string>
+    <string name="dvr_rear">Rear</string>
+    <string name="dvr_connecting">Connecting to the camera…</string>
+    <string name="dvr_not_on_wifi">The phone is not on the bike\'s Wi‑Fi (ZT_…). Connect to it in the Wi‑Fi settings, or press Connect on the home screen, then try again. Best used while parked.</string>
+    <string name="dvr_wifi_settings">Wi‑Fi settings</string>
+    <string name="dvr_retry">Try again</string>
+    <string name="dvr_error">Can\'t reach the camera (%1$s)</string>
+    <string name="dvr_pick_day">Choose a day</string>
+    <string name="dvr_pick_hour">%1$s · choose an hour</string>
+    <string name="dvr_empty">Nothing recorded here</string>
+    <string name="dvr_play">Play</string>
+    <string name="dvr_download">Download</string>
+    <string name="dvr_play_failed">Can\'t open this file</string>
+    <string name="dvr_saved">Saved to %1$s</string>
+    <string name="dvr_download_failed">Download failed (%1$s)</string>
     <string name="fuel_log_chart">Chart</string>
     <string name="fuel_log_need_chart">Add at least 3 fill-ups to see the chart</string>
     <string name="fuel_log_tab_price">Price/L</string>

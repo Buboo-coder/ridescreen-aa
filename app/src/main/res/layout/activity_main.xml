@@ -740,6 +740,17 @@
                     <LinearLayout android:id="@+id/btn_help" style="@style/HomeTile" android:layout_marginStart="5dp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <LinearLayout android:id="@+id/btn_dvr" style="@style/HomeTile" android:layout_marginEnd="5dp" />
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="2" />
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/more_title"
                     android:layout_width="match_parent"

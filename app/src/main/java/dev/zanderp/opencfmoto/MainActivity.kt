@@ -1516,11 +1516,15 @@ class MainActivity : AppCompatActivity() {
         buildTile(R.id.btn_gmaps, "🗺️", 0xFF4285F4.toInt(), getString(R.string.home_tile_gmaps), getString(R.string.home_tile_gmaps_sub))
         buildTile(R.id.btn_start_ride, "🏁", 0xFFD1A955.toInt(), getString(R.string.home_tile_start_ride), getString(R.string.home_tile_start_ride_sub))
         buildTile(R.id.btn_phone_map, "📱", 0xFF5FD07A.toInt(), getString(R.string.home_tile_phone_map), getString(R.string.home_tile_phone_map_sub))
+        buildTile(R.id.btn_dvr, "📹", 0xFFE05A5A.toInt(), getString(R.string.home_tile_dvr), getString(R.string.home_tile_dvr_sub))
         buildTile(R.id.btn_help, "❓", 0xFFA98BE0.toInt(), getString(R.string.home_tile_help), getString(R.string.home_tile_help_sub))
         buildTile(R.id.btn_park_photo, "📸", 0xFFD1A955.toInt(), getString(R.string.home_big_park), getString(R.string.home_big_park_sub), big = true)
         buildTile(R.id.btn_controls, "🎮", 0xFF5B8DEF.toInt(), getString(R.string.controls_controls), getString(R.string.home_big_controls_sub), big = true)
         buildTile(R.id.btn_hud_view, "🖥️", 0xFF4FB6A6.toInt(), getString(R.string.hud_dash_view), getString(R.string.home_big_hud_sub), big = true)
         buildTile(R.id.btn_trip, "⏱️", 0xFF5FD07A.toInt(), getString(R.string.home_big_trip), getString(R.string.home_big_trip_sub), big = true)
+        findViewById<View>(R.id.btn_dvr)?.setOnClickListener {
+            startActivity(Intent(this, DvrActivity::class.java))
+        }
         findViewById<View>(R.id.btn_gmaps)?.setOnClickListener {
             if (!NavLauncher.openGoogleMaps(this, ::log)) {
                 Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
