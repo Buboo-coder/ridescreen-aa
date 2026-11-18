@@ -10,6 +10,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
 import android.os.SystemClock
 
 /**
@@ -54,6 +55,10 @@ class TripRecorder(private val appContext: Context) : LocationListener {
     private var lastAccuracy = 0
     private var curSpeedKmh = 0
 
+    // Asks for GPS every second, or every 2 s during a steady straight cruise (see GpsRatePolicy).
+    private val ratePolicy = GpsRatePolicy()
+    private var gpsLooper: Looper? = null
+
     private fun hasPermission(): Boolean =
         appContext.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
@@ -66,8 +71,10 @@ class TripRecorder(private val appContext: Context) : LocationListener {
         if (!hasPermission() || lm == null || !gpsAvailable()) return false
         resetLeg()
         recording = true
+        ratePolicy.reset()
+        gpsLooper = Looper.myLooper() ?: Looper.getMainLooper()
         try {
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this)
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, GpsRatePolicy.FAST_MS, 0f, this, gpsLooper)
         } catch (_: SecurityException) {
             recording = false
             return false
@@ -125,6 +132,7 @@ class TripRecorder(private val appContext: Context) : LocationListener {
             return
         }
         lastSeen = location
+        adaptGpsRate(location, now)
 
         var speedMs = if (location.hasSpeed()) location.speed
             else if (dtMs in 1..5000) d / (dtMs / 1000f) else 0f
@@ -161,6 +169,23 @@ class TripRecorder(private val appContext: Context) : LocationListener {
         lastFixAt = now
         maybeCheckpoint(now)
         emit()
+    }
+
+    /** Switches between 1 s and 2 s GPS updates as [GpsRatePolicy] decides; any trouble → back to 1 s. */
+    private fun adaptGpsRate(location: Location, nowMs: Long) {
+        val ms = ratePolicy.onFix(
+            nowMs,
+            location.hasSpeed(), location.speed,
+            location.hasBearing(), location.bearing,
+            location.hasAccuracy(), location.accuracy,
+        ) ?: return
+        try {
+            lm?.removeUpdates(this)
+            lm?.requestLocationUpdates(LocationManager.GPS_PROVIDER, ms, 0f, this, gpsLooper ?: Looper.getMainLooper())
+            LogBus.log("[trip] GPS every ${ms} ms")
+        } catch (_: SecurityException) {
+            recording = false
+        }
     }
 
     private var lastCheckpointAt = 0L
