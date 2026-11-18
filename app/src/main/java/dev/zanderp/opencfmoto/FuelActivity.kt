@@ -75,6 +75,7 @@ class FuelActivity : AppCompatActivity() {
             setOnClickListener { openNearbyFuel(true) }
         }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6); bottomMargin = dp(10) })
         root.addView(maps)
+        root.addView(FuelLogSection(this).view)
         val bar = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         sortBar = bar
         btnCheap = pill(getString(R.string.fuel_sort_price)) { byDistance = false; render() }
@@ -91,7 +92,9 @@ class FuelActivity : AppCompatActivity() {
         setContentView(scroll)
         ViewCompat.setOnApplyWindowInsetsListener(scroll) { v, insets ->
             val b = insets.getInsets(SafeInsets.BARS)
-            v.setPadding(b.left, b.top, b.right, b.bottom)
+            // Keep the fuel-log form above the keyboard.
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            v.setPadding(b.left, b.top, b.right, maxOf(b.bottom, ime.bottom))
             insets
         }
         load()
