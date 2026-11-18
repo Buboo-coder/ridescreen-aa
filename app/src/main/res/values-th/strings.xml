@@ -677,6 +677,12 @@
     <string name="fuel_log_row_date_odo">%1$s · %2$s กม.</string>
     <string name="fuel_log_row_detail">%1$.2f ลิตร × %2$.2f บาท = %3$.2f บาท</string>
     <string name="fuel_log_row_eff">%1$.1f กม./ลิตร</string>
+    <string name="fuel_log_chart">กราฟการเติม</string>
+    <string name="fuel_log_need_chart">เติมอย่างน้อย 3 ครั้งเพื่อดูกราฟ</string>
+    <string name="fuel_log_tab_price">ราคา/ลิตร</string>
+    <string name="fuel_log_tab_cost">ยอดต่อครั้ง</string>
+    <string name="fuel_log_price_unit">บาท/ลิตร</string>
+    <string name="fuel_log_cur">บาท</string>
     <string name="nearby_fuel_query">ปั๊มน้ำมัน</string>
     <string name="nearby_fuel_chip">ปั๊มน้ำมัน</string>
     <string name="nearby_fuel_search">ค้นหาปั๊มน้ำมันใกล้เคียงใน Google Maps</string>

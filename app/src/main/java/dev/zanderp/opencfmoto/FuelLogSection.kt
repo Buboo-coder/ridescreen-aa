@@ -46,6 +46,14 @@ class FuelLogSection(private val act: AppCompatActivity) {
     private lateinit var litersEdit: EditText
     private lateinit var priceEdit: EditText
     private lateinit var historyBox: LinearLayout
+    private lateinit var chartSection: LinearLayout
+    private lateinit var chart: FuelChartView
+    private lateinit var tabKml: MaterialButton
+    private lateinit var tabPrice: MaterialButton
+    private lateinit var tabCost: MaterialButton
+    private var series = Series.KML
+
+    private enum class Series { KML, PRICE, COST }
 
     init {
         build()
@@ -69,6 +77,15 @@ class FuelLogSection(private val act: AppCompatActivity) {
         typeface = ResourcesCompat.getFont(act, R.font.archivo_black)
         setPadding(0, dp(22), 0, dp(2))
     }
+
+    private fun tab(label: Int, onClick: () -> Unit) =
+        MaterialButton(act, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+            setText(label)
+            isAllCaps = false
+            textSize = 13f
+            setPadding(dp(4), 0, dp(4), 0)
+            setOnClickListener { onClick() }
+        }
 
     private fun smallLabel(res: Int) = TextView(act).apply {
         setText(res)
@@ -145,6 +162,29 @@ class FuelLogSection(private val act: AppCompatActivity) {
         statsCol.addView(statHint)
         statsCard.addView(statsCol)
         view.addView(statsCard)
+
+        // Chart of the fill-ups (shown from the 3rd fill-up on).
+        chartSection = LinearLayout(act).apply { orientation = LinearLayout.VERTICAL; visibility = View.GONE }
+        chartSection.addView(sectionTitle(R.string.fuel_log_chart))
+        val chartCard = card()
+        val chartCol = LinearLayout(act).apply { orientation = LinearLayout.VERTICAL }
+        val tabs = LinearLayout(act).apply { orientation = LinearLayout.HORIZONTAL }
+        tabKml = tab(R.string.fuel_log_kml) { series = Series.KML; render() }
+        tabPrice = tab(R.string.fuel_log_tab_price) { series = Series.PRICE; render() }
+        tabCost = tab(R.string.fuel_log_tab_cost) { series = Series.COST; render() }
+        tabs.addView(tabKml, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
+        tabs.addView(tabPrice, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
+        tabs.addView(tabCost, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        chartCol.addView(tabs)
+        chart = FuelChartView(act).apply {
+            lineColor = color(R.color.brand_gold)
+            textColor = color(R.color.text_secondary)
+            gridColor = (color(R.color.text_secondary) and 0x00FFFFFF) or 0x33000000
+        }
+        chartCol.addView(chart, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
+        chartCard.addView(chartCol)
+        chartSection.addView(chartCard)
+        view.addView(chartSection)
 
         // New fill-up form.
         view.addView(sectionTitle(R.string.fuel_log_new))
@@ -242,8 +282,14 @@ class FuelLogSection(private val act: AppCompatActivity) {
         } else {
             statAvg.text = String.format(loc, "%.1f %s", st.kmPerL, act.getString(R.string.fuel_log_kml))
             statCost.text = String.format(loc, "%.2f %s", st.costPerKm, act.getString(R.string.fuel_log_cost_unit))
-            statHint.visibility = View.GONE
+            if (sorted.size < 3) {
+                statHint.setText(R.string.fuel_log_need_chart)
+                statHint.visibility = View.VISIBLE
+            } else {
+                statHint.visibility = View.GONE
+            }
         }
+        renderChart(sorted)
         // Hint = last odometer so the rider sees where the next number should start.
         odoEdit.hint = sorted.lastOrNull()?.let { String.format(loc, "%,.0f", it.odoKm) } ?: act.getString(R.string.fuel_log_odo_hint)
 
@@ -259,6 +305,33 @@ class FuelLogSection(private val act: AppCompatActivity) {
             return
         }
         for (i in sorted.indices.reversed()) historyBox.addView(historyRow(sorted, i))
+    }
+
+    private fun renderChart(sorted: List<FuelLog.Entry>) {
+        if (sorted.size < 3) { chartSection.visibility = View.GONE; return }
+        chartSection.visibility = View.VISIBLE
+        val short = SimpleDateFormat("dd/MM", Locale.getDefault())
+        val pts: List<FuelChartView.Point>
+        val unit: String
+        val decimals: Int
+        when (series) {
+            Series.KML -> {
+                pts = sorted.indices.mapNotNull { i -> FuelLog.kmPerLAt(sorted, i)?.let { FuelChartView.Point(short.format(Date(sorted[i].dateMs)), it) } }
+                unit = act.getString(R.string.fuel_log_kml); decimals = 1
+            }
+            Series.PRICE -> {
+                pts = sorted.map { FuelChartView.Point(short.format(Date(it.dateMs)), it.pricePerL) }
+                unit = act.getString(R.string.fuel_log_price_unit); decimals = 2
+            }
+            Series.COST -> {
+                pts = sorted.map { FuelChartView.Point(short.format(Date(it.dateMs)), it.total) }
+                unit = act.getString(R.string.fuel_log_cur); decimals = 0
+            }
+        }
+        chart.setData(pts.takeLast(12), unit, decimals)
+        tabKml.alpha = if (series == Series.KML) 1f else 0.55f
+        tabPrice.alpha = if (series == Series.PRICE) 1f else 0.55f
+        tabCost.alpha = if (series == Series.COST) 1f else 0.55f
     }
 
     private fun historyRow(sorted: List<FuelLog.Entry>, i: Int): View {

@@ -678,6 +678,12 @@
     <string name="fuel_log_row_date_odo">%1$s · %2$s km</string>
     <string name="fuel_log_row_detail">%1$.2f L × %2$.2f ฿ = %3$.2f ฿</string>
     <string name="fuel_log_row_eff">%1$.1f km/L</string>
+    <string name="fuel_log_chart">Chart</string>
+    <string name="fuel_log_need_chart">Add at least 3 fill-ups to see the chart</string>
+    <string name="fuel_log_tab_price">Price/L</string>
+    <string name="fuel_log_tab_cost">Cost per fill</string>
+    <string name="fuel_log_price_unit">฿/L</string>
+    <string name="fuel_log_cur">฿</string>
     <string name="nearby_fuel_query">gas station</string>
     <string name="nearby_fuel_chip">Fuel</string>
     <string name="nearby_fuel_search">Find petrol stations in Google Maps</string>
