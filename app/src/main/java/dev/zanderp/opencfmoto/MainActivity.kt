@@ -1515,7 +1515,7 @@ class MainActivity : AppCompatActivity() {
         buildTile(R.id.btn_fuel, "⛽", 0xFFE5774E.toInt(), getString(R.string.home_tile_fuel), getString(R.string.home_tile_fuel_sub))
         buildTile(R.id.btn_gmaps, "🗺️", 0xFF4285F4.toInt(), getString(R.string.home_tile_gmaps), getString(R.string.home_tile_gmaps_sub))
         buildTile(R.id.btn_start_ride, "🏁", 0xFFD1A955.toInt(), getString(R.string.home_tile_start_ride), getString(R.string.home_tile_start_ride_sub))
-        buildTile(R.id.btn_phone_map, "📱", 0xFF5FD07A.toInt(), getString(R.string.home_tile_phone_map), getString(R.string.home_tile_phone_map_sub))
+        buildTile(R.id.btn_back_aa, "🚗", 0xFF5FD07A.toInt(), getString(R.string.home_tile_back_aa), getString(R.string.home_tile_back_aa_sub))
         buildTile(R.id.btn_dvr, "📹", 0xFFE05A5A.toInt(), getString(R.string.home_tile_dvr), getString(R.string.home_tile_dvr_sub))
         buildTile(R.id.btn_help, "❓", 0xFFA98BE0.toInt(), getString(R.string.home_tile_help), getString(R.string.home_tile_help_sub))
         buildTile(R.id.btn_park_photo, "📸", 0xFFD1A955.toInt(), getString(R.string.home_big_park), getString(R.string.home_big_park_sub), big = true)
@@ -1533,9 +1533,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_start_ride)?.setOnClickListener {
             startActivity(Intent(this, GpxActivity::class.java).putExtra(GpxActivity.EXTRA_AUTO, GpxActivity.AUTO_FREE_RIDE))
         }
-        findViewById<View>(R.id.btn_phone_map)?.setOnClickListener {
-            startActivity(Intent(this, GpxActivity::class.java).putExtra(GpxActivity.EXTRA_AUTO, GpxActivity.AUTO_SEE_PHONE))
-        }
+        findViewById<View>(R.id.btn_back_aa)?.setOnClickListener { backToAndroidAuto() }
         findViewById<View>(R.id.parked_walk)?.setOnClickListener {
             val spot = Parking.get(this) ?: return@setOnClickListener
             try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
@@ -1940,6 +1938,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Re-run the one-tap Connect for the saved bike (used after closing the rival app). */
+    /**
+     * One tap back to Android Auto after the built-in map (or mirror) was sent to the dash:
+     * does what Stop + Connect does by hand — stops the current session, waits for the links to
+     * close, then starts Android Auto again on the saved bike.
+     */
+    private fun backToAndroidAuto() {
+        if (BikeMemory.lastQr(this) == null) {
+            log("→ Back to Android Auto: no saved bike — scan the dash QR.")
+            startAaScan()
+            return
+        }
+        if (DependencyPrompt.showForConnect(this, forScan = false)) {
+            log("→ Back to Android Auto blocked — missing dependencies (see dialog)")
+            return
+        }
+        log("→ Back to Android Auto: stopping the current session, then reconnecting")
+        stopEverything()
+        connectBtn.postDelayed({
+            if (!isFinishing && !isDestroyed) {
+                PxcHandshake.resetResyncBudget()
+                reconnectSavedBike()
+            }
+        }, 2500)
+    }
+
     private fun reconnectSavedBike() {
         val saved = BikeMemory.lastQr(this) ?: return
         ProjectionHolder.projection = null

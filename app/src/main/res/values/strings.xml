@@ -650,8 +650,8 @@
     <string name="home_tile_gmaps_sub">Open the app</string>
     <string name="home_tile_start_ride">Start ride</string>
     <string name="home_tile_start_ride_sub">Free ride on the dash</string>
-    <string name="home_tile_phone_map">Map on phone</string>
-    <string name="home_tile_phone_map_sub">No bike needed</string>
+    <string name="home_tile_back_aa">Back to Android Auto</string>
+    <string name="home_tile_back_aa_sub">One tap, reconnects</string>
     <string name="fuel_log_title">Fuel log</string>
     <string name="fuel_log_avg">Average</string>
     <string name="fuel_log_cost_km">Fuel cost per km</string>

@@ -649,8 +649,8 @@
     <string name="home_tile_gmaps_sub">เปิดแอป</string>
     <string name="home_tile_start_ride">เริ่มเดินทาง</string>
     <string name="home_tile_start_ride_sub">ขับอิสระบนจอรถ</string>
-    <string name="home_tile_phone_map">แผนที่บนโทรศัพท์</string>
-    <string name="home_tile_phone_map_sub">ไม่ต้องต่อจอรถ</string>
+    <string name="home_tile_back_aa">กลับ Android Auto</string>
+    <string name="home_tile_back_aa_sub">กดครั้งเดียว ต่อใหม่ให้</string>
     <string name="fuel_log_title">บันทึกน้ำมัน</string>
     <string name="fuel_log_avg">เฉลี่ย</string>
     <string name="fuel_log_cost_km">ค่าน้ำมันต่อกม.</string>
