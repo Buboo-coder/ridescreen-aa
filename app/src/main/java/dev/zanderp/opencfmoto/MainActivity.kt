@@ -1092,6 +1092,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Support.onResume(this)
+        btnTrackSub(TripTrackService.running)
         renderQuickDestinations()
         // Back from the app's permission page / Bluetooth / Wi‑Fi settings: carry on with Connect.
         if (pendingAaQr != null && dev.zanderp.opencfmoto.aa.AaSelfMode.canAttemptHur(this) &&
@@ -1514,7 +1515,7 @@ class MainActivity : AppCompatActivity() {
         buildTile(R.id.btn_trips_list, "🏍️", 0xFF5B8DEF.toInt(), getString(R.string.home_tile_trips))
         buildTile(R.id.btn_fuel, "⛽", 0xFFE5774E.toInt(), getString(R.string.home_tile_fuel), getString(R.string.home_tile_fuel_sub))
         buildTile(R.id.btn_gmaps, "🗺️", 0xFF4285F4.toInt(), getString(R.string.home_tile_gmaps), getString(R.string.home_tile_gmaps_sub))
-        buildTile(R.id.btn_start_ride, "🏁", 0xFFD1A955.toInt(), getString(R.string.home_tile_start_ride), getString(R.string.home_tile_start_ride_sub))
+        buildTile(R.id.btn_track, "📍", 0xFFE05A5A.toInt(), getString(R.string.home_tile_track), getString(R.string.home_tile_track_sub_off))
         buildTile(R.id.btn_back_aa, "🚗", 0xFF5FD07A.toInt(), getString(R.string.home_tile_back_aa), getString(R.string.home_tile_back_aa_sub))
         buildTile(R.id.btn_dvr, "📹", 0xFFE05A5A.toInt(), getString(R.string.home_tile_dvr), getString(R.string.home_tile_dvr_sub))
         buildTile(R.id.btn_help, "❓", 0xFFA98BE0.toInt(), getString(R.string.home_tile_help), getString(R.string.home_tile_help_sub))
@@ -1530,9 +1531,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, R.string.open_google_maps_missing, Toast.LENGTH_SHORT).show()
             }
         }
-        findViewById<View>(R.id.btn_start_ride)?.setOnClickListener {
-            startActivity(Intent(this, GpxActivity::class.java).putExtra(GpxActivity.EXTRA_AUTO, GpxActivity.AUTO_FREE_RIDE))
-        }
+        findViewById<View>(R.id.btn_track)?.setOnClickListener { toggleRouteRecording() }
         findViewById<View>(R.id.btn_back_aa)?.setOnClickListener { backToAndroidAuto() }
         findViewById<View>(R.id.parked_walk)?.setOnClickListener {
             val spot = Parking.get(this) ?: return@setOnClickListener
@@ -1961,6 +1960,35 @@ class MainActivity : AppCompatActivity() {
                 reconnectSavedBike()
             }
         }, 2500)
+    }
+
+    /** Home tile: start / stop recording the route in the background (see [TripTrackService]). */
+    private fun toggleRouteRecording() {
+        if (TripTrackService.running) {
+            TripTrackService.stop(this)
+            Toast.makeText(this, R.string.trk_toast_stopped, Toast.LENGTH_LONG).show()
+            btnTrackSub(false)
+            return
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ensureLocationPermission()
+            Toast.makeText(this, R.string.trk_toast_need_location, Toast.LENGTH_LONG).show()
+            return
+        }
+        val lm = getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+        if (lm?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) != true) {
+            Toast.makeText(this, R.string.trk_toast_gps_off, Toast.LENGTH_LONG).show()
+            return
+        }
+        TripTrackService.start(this)
+        Toast.makeText(this, R.string.trk_toast_started, Toast.LENGTH_LONG).show()
+        btnTrackSub(true)
+    }
+
+    private fun btnTrackSub(on: Boolean) {
+        setTileSub(R.id.btn_track, getString(if (on) R.string.home_tile_track_sub_on else R.string.home_tile_track_sub_off))
     }
 
     private fun reconnectSavedBike() {

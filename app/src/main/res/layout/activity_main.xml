@@ -735,7 +735,7 @@
                     android:baselineAligned="false"
                     android:orientation="horizontal">
 
-                    <LinearLayout android:id="@+id/btn_start_ride" style="@style/HomeTile" android:layout_marginEnd="5dp" />
+                    <LinearLayout android:id="@+id/btn_track" style="@style/HomeTile" android:layout_marginEnd="5dp" />
                     <LinearLayout android:id="@+id/btn_back_aa" style="@style/HomeTile" android:layout_marginHorizontal="5dp" />
                     <LinearLayout android:id="@+id/btn_help" style="@style/HomeTile" android:layout_marginStart="5dp" />
                 </LinearLayout>

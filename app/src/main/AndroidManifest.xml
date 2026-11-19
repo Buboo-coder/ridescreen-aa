@@ -229,6 +229,10 @@
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
         <service
+            android:name=".TripTrackService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+        <service
             android:name=".AndroidAutoService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice|location|microphone" />

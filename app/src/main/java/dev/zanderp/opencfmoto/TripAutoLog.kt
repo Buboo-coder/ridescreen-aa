@@ -18,6 +18,15 @@ object TripAutoLog {
     @Volatile var mapUiLive: Boolean = false
         private set
 
+    /** True while the rider's "record route" switch (see [TripTrackService]) is on. */
+    @Volatile var manualOn: Boolean = false
+        private set
+
+    fun setManualTracking(context: Context, on: Boolean) {
+        manualOn = on
+        sync(context)
+    }
+
     fun setMapUiLive(context: Context, live: Boolean) {
         mapUiLive = live
         sync(context)
@@ -29,17 +38,18 @@ object TripAutoLog {
      */
     fun sync(context: Context) {
         val app = context.applicationContext
-        if (!AppSettings.logTrips(app)) {
+        if (!AppSettings.logTrips(app) && !manualOn) {
             val rec = TripLogger.current
             if (rec != null && rec.recording) rec.stopAndSave()
             return
         }
         val shouldRecord =
-            ConnectionState.phase == Phase.STREAMING || mapUiLive
+            ConnectionState.phase == Phase.STREAMING || mapUiLive || manualOn
         val rec = TripLogger.get(app)
         if (shouldRecord) {
             if (!rec.recording && rec.start()) {
                 val via = when {
+                    manualOn -> "route recording"
                     ConnectionState.phase == Phase.STREAMING && mapUiLive -> "AA + map"
                     mapUiLive -> "map"
                     else -> "AA"
