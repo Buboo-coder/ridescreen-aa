@@ -102,6 +102,9 @@ class DvrActivity : AppCompatActivity() {
         angleRow.addView(tabRear, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         root.addView(angleRow, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
 
+        val probeBtn = tab(R.string.dvr_probe) { probeLive() }
+        root.addView(probeBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
+
         progress = ProgressBar(this)
         root.addView(progress, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             gravity = Gravity.CENTER_HORIZONTAL; topMargin = dp(30)
@@ -157,6 +160,26 @@ class DvrActivity : AppCompatActivity() {
 
     private fun ui(my: Int, block: () -> Unit) {
         runOnUiThread { if (my == gen && !isFinishing && !isDestroyed) block() }
+    }
+
+    /** "Check camera": read-only look for a live-video port; result shown in a dialog and the log. */
+    private fun probeLive() {
+        val n = ensureNet()
+        if (n == null) { showNotConnected(); return }
+        Toast.makeText(this, R.string.dvr_probe_running, Toast.LENGTH_SHORT).show()
+        cmd.execute {
+            val lines = try { DvrClient.probeLive(n) } catch (e: Exception) { listOf("error: ${e.message}") }
+            LogBus.log("[dvr] probe ${DvrClient.HOST}: " + (if (lines.isEmpty()) "no open port" else lines.joinToString(" | ")))
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val body = if (lines.isEmpty()) getString(R.string.dvr_probe_none) else lines.joinToString("\n")
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.dvr_probe)
+                    .setMessage(body)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+        }
     }
 
     private fun ensureNet(): Network? {

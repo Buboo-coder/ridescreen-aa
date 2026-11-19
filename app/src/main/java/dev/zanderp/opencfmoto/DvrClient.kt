@@ -13,8 +13,11 @@ import android.provider.MediaStore
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
+import java.net.InetSocketAddress
 import java.net.NetworkInterface
 import java.net.URL
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 /**
  * Client for the Zontes front/rear camera (DVR) HTTP service, written from what the rider's own
@@ -159,6 +162,46 @@ object DvrClient {
         return j.optJSONArray("pictureBeanList").objects().map {
             Photo(it.optString("name"), it.optString("angle"), it.optString("pictureUrl"))
         }.filter { it.url.isNotEmpty() }
+    }
+
+    /** Ports a camera might use for a live picture (RTSP / HTTP / MJPEG / RTMP and common extras). */
+    private val PROBE_PORTS = listOf(80, 443, 554, 7070, 7687, 8000, 8080, 8081, 8554, 8888, 1935, 5000, 9000)
+
+    /**
+     * Read-only look for a live-video door on the camera: tries to open each port in [PROBE_PORTS]
+     * on [HOST] (and 7686), and for an open one sends only an RTSP "OPTIONS" or an HTTP "GET /".
+     * Nothing is changed on the camera. Returns one line per port that answered, or a note that
+     * none did.
+     */
+    fun probeLive(net: Network?): List<String> {
+        val ports = (PROBE_PORTS + PORT).distinct()
+        val pool = Executors.newFixedThreadPool(8)
+        try {
+            val jobs = ports.map { port ->
+                pool.submit(Callable<String?> {
+                    val sock = (net?.socketFactory?.createSocket() ?: java.net.Socket())
+                    try {
+                        sock.connect(InetSocketAddress(HOST, port), 1500)
+                        sock.soTimeout = 2000
+                        val rtsp = port == 554 || port == 8554
+                        val req = if (rtsp) "OPTIONS rtsp://$HOST:$port/ RTSP/1.0\r\nCSeq: 1\r\n\r\n"
+                        else "GET / HTTP/1.0\r\nHost: $HOST\r\nUser-Agent: $UA\r\n\r\n"
+                        sock.getOutputStream().apply { write(req.toByteArray()); flush() }
+                        val buf = ByteArray(300)
+                        val n = try { sock.getInputStream().read(buf) } catch (_: Exception) { -1 }
+                        val first = if (n > 0) String(buf, 0, n).lineSequence().firstOrNull()?.trim().orEmpty() else ""
+                        "$port: open ${if (rtsp) "(RTSP) " else ""}${first.take(80)}"
+                    } catch (_: Exception) {
+                        null
+                    } finally {
+                        try { sock.close() } catch (_: Exception) {}
+                    }
+                })
+            }
+            return jobs.mapNotNull { try { it.get() } catch (_: Exception) { null } }
+        } finally {
+            pool.shutdown()
+        }
     }
 
     /** Raw bytes of a small file (thumbnail / picture). */

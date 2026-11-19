@@ -723,4 +723,7 @@
     <string name="music_vol_down">ลดเสียง</string>
     <string name="music_mute">ปิดเสียง / เปิดเสียง</string>
     <string name="music_vol_up">เพิ่มเสียง</string>
+    <string name="dvr_probe">ตรวจกล้อง (หาภาพสด)</string>
+    <string name="dvr_probe_running">กำลังตรวจ ใช้เวลาไม่กี่วินาที…</string>
+    <string name="dvr_probe_none">ไม่พบช่องทางภาพสดที่พอร์ตทั่วไป (มีแต่พอร์ตดูคลิปย้อนหลังเท่านั้น)</string>
 </resources>

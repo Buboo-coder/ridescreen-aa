@@ -724,4 +724,7 @@
     <string name="music_vol_down">Volume down</string>
     <string name="music_mute">Mute / unmute</string>
     <string name="music_vol_up">Volume up</string>
+    <string name="dvr_probe">Check camera (find live view)</string>
+    <string name="dvr_probe_running">Checking, a few seconds…</string>
+    <string name="dvr_probe_none">No live-video port found on the usual ports (only the recorded-clip port answers).</string>
 </resources>
