@@ -263,7 +263,7 @@ class DvrActivity : AppCompatActivity() {
             list.addView(
                 row(c.thumbUrl, c.title.ifEmpty { c.name }, mb, { play(c) },
                     getString(R.string.dvr_play) to { _: MaterialButton -> play(c) },
-                    getString(R.string.dvr_download) to { b: MaterialButton -> startDownload(b, c.playUrl, c.name, true) },
+                    getString(R.string.dvr_download) to { b: MaterialButton -> startDownload(b, c.playUrl, c.playUrl.substringAfterLast('/').substringBefore('?').takeIf { it.endsWith(".mp4", true) } ?: c.name, true) },
                 ),
             )
         }

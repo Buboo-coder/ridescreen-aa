@@ -190,7 +190,8 @@ object DvrClient {
                         val buf = ByteArray(300)
                         val n = try { sock.getInputStream().read(buf) } catch (_: Exception) { -1 }
                         val first = if (n > 0) String(buf, 0, n).lineSequence().firstOrNull()?.trim().orEmpty() else ""
-                        "$port: open ${if (rtsp) "(RTSP) " else ""}${first.take(80)}"
+                        val head = "$port: open ${if (rtsp) "(RTSP) " else ""}${first.take(80)}"
+                        if (first.isEmpty() && port != PORT) head + " | " + deepLook(net, port) else head
                     } catch (_: Exception) {
                         null
                     } finally {
@@ -202,6 +203,58 @@ object DvrClient {
         } finally {
             pool.shutdown()
         }
+    }
+
+    /** Hex of the first bytes (and printable text) of [b]. */
+    private fun hexHead(b: ByteArray, n: Int): String {
+        val m = minOf(n, b.size)
+        val hex = (0 until m).joinToString(" ") { String.format("%02x", b[it]) }
+        val txt = (0 until m).map { val c = b[it].toInt(); if (c in 32..126) c.toChar() else '.' }.joinToString("")
+        return "$hex \"$txt\""
+    }
+
+    /**
+     * For a port that opened but stayed silent: (1) listen 4 s without sending anything, in case it
+     * pushes data by itself (a live stream usually does); (2) try a few plain GET paths and report
+     * only the status line / first bytes. Read-only.
+     */
+    private fun deepLook(net: Network?, port: Int): String {
+        val parts = ArrayList<String>()
+        fun sock() = (net?.socketFactory?.createSocket() ?: java.net.Socket())
+        try {
+            val s = sock()
+            try {
+                s.connect(InetSocketAddress(HOST, port), 1500)
+                s.soTimeout = 4000
+                val buf = ByteArray(2048)
+                var total = 0
+                var firstBytes: ByteArray? = null
+                val end = System.currentTimeMillis() + 4000
+                try {
+                    while (System.currentTimeMillis() < end && total < 100_000) {
+                        val n = s.getInputStream().read(buf)
+                        if (n < 0) { parts.add("closed by camera"); break }
+                        if (firstBytes == null) firstBytes = buf.copyOf(n)
+                        total += n
+                    }
+                } catch (_: java.net.SocketTimeoutException) {}
+                parts.add(if (total > 0) "pushes data: $total B in 4 s, head ${hexHead(firstBytes!!, 24)}" else "silent for 4 s")
+            } finally { try { s.close() } catch (_: Exception) {} }
+        } catch (e: Exception) { parts.add("listen failed ${e.javaClass.simpleName}") }
+        for (path in listOf("/", "/live", "/stream", "/video", "/mjpeg", "/live.mp4", "/live/0")) {
+            try {
+                val s = sock()
+                try {
+                    s.connect(InetSocketAddress(HOST, port), 1500)
+                    s.soTimeout = 2500
+                    s.getOutputStream().apply { write("GET $path HTTP/1.1\r\nHost: $HOST:$port\r\nUser-Agent: $UA\r\n\r\n".toByteArray()); flush() }
+                    val buf = ByteArray(200)
+                    val n = try { s.getInputStream().read(buf) } catch (_: Exception) { -1 }
+                    if (n > 0) parts.add("GET $path -> ${hexHead(buf, 40)}")
+                } finally { try { s.close() } catch (_: Exception) {} }
+            } catch (_: Exception) {}
+        }
+        return parts.joinToString(" ; ")
     }
 
     /** Raw bytes of a small file (thumbnail / picture). */

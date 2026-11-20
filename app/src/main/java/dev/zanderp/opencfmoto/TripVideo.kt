@@ -98,8 +98,12 @@ object TripVideo {
     } catch (_: Exception) { null }
 
     /** Blocking. Gallery videos recorded during [trip] (container date first, gallery date as fallback). */
+    /** What the last [findClips] saw, for the on-screen hint when nothing matched. */
+    @Volatile var lastReport: String = ""
+
     fun findClips(ctx: Context, trip: Trip): List<Clip> {
         val out = ArrayList<Clip>()
+        val seen = ArrayList<String>()
         val proj = arrayOf(
             MediaStore.Video.Media._ID, MediaStore.Video.Media.DISPLAY_NAME,
             MediaStore.Video.Media.DATE_TAKEN, MediaStore.Video.Media.DATE_ADDED, MediaStore.Video.Media.DURATION,
@@ -122,7 +126,7 @@ object TripVideo {
                     // Phones (and most cameras) name the file after the START of the recording, in
                     // local time — more reliable than the container date, which some apps set to the
                     // end of the clip or to the import time.
-                    val fromName = startFromName(name)
+                    val fromName = startFromCameraId(name) ?: startFromName(name)
                     val start = fromName ?: meta?.first ?: taken.takeIf { it > 0 } ?: continue
                     LogBus.log("[VIDEO] clip $name: name=${fromName?.let { stamp(it) }} file=${meta?.first?.let { stamp(it) }} " +
                         "taken=${if (taken > 0) stamp(taken) else "-"} added=${stamp(c.getLong(3) * 1000)} dur=${(meta?.second ?: dur) / 1000}s → start ${stamp(start)}")
@@ -130,6 +134,7 @@ object TripVideo {
                     // Some cameras stamp the END of the recording: accept either reading.
                     val overlaps = (start in (trip.start - MARGIN_MS)..(trip.end + MARGIN_MS)) ||
                         (start - durMs in (trip.start - MARGIN_MS)..(trip.end + MARGIN_MS))
+                    if (seen.size < 4) seen += "$name (${stamp(start)}, ${durMs / 1000}s)"
                     if (!overlaps || durMs < 1000) continue
                     out += Clip(uri, name, start, durMs, meta?.third?.get(0) ?: 0, meta?.third?.get(1) ?: 0, meta?.third?.get(2) ?: 0)
                 }
@@ -137,13 +142,36 @@ object TripVideo {
         } catch (e: Exception) {
             LogBus.log("[VIDEO] gallery query failed: $e")
         }
-        return out.sortedBy { it.startMs }
+        lastReport = if (out.isEmpty())
+            "trip ${stamp(trip.start)}–${stamp(trip.end)}; " +
+                (if (seen.isEmpty()) "no videos in the gallery were added since the trip started" else "gallery: " + seen.joinToString("; "))
+        else ""
+        // Bike camera saves a front AND a rear file for the same minutes: using both would play the
+        // same stretch twice, so keep the front camera when both are present.
+        val hasFront = out.any { it.name.contains("-front", ignoreCase = true) }
+        val hasRear = out.any { it.name.contains("-rear", ignoreCase = true) }
+        val kept = if (hasFront && hasRear) out.filterNot { it.name.contains("-rear", ignoreCase = true) } else out
+        return kept.sortedBy { it.startMs }
     }
 
     private fun stamp(ms: Long) = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(ms))
 
+    /** Bike camera files start with the clip's start time as Unix seconds: "1763547480-2026-11-19-…". */
+    private fun startFromCameraId(name: String): Long? {
+        val m = Regex("""^(\d{10})-20\d{2}-""").find(name) ?: return null
+        val sec = m.groupValues[1].toLongOrNull() ?: return null
+        return if (sec in 1_577_836_800L..2_100_000_000L) sec * 1000L else null
+    }
+
     /** "VID_20261012_141530…", "PXL_20261012_141530123…", "20261012_141530.mp4" → local time. */
     private fun startFromName(name: String): Long? {
+        // Zontes bike camera: "<id>-2026-11-19-12-27-31-front.mp4" (local time of the camera).
+        Regex("""(?<!\d)(20\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})-(\d{2})(?!\d)""").find(name)?.let { z ->
+            try {
+                return SimpleDateFormat("yyyyMMddHHmmss", Locale.US).apply { isLenient = false }
+                    .parse(z.groupValues.drop(1).joinToString(""))?.time
+            } catch (_: Exception) {}
+        }
         val m = Regex("""(20\d{2})(\d{2})(\d{2})[_-]?(\d{2})(\d{2})(\d{2})""").find(name) ?: return null
         return try {
             SimpleDateFormat("yyyyMMddHHmmss", Locale.US).parse(m.groupValues.drop(1).joinToString(""))?.time

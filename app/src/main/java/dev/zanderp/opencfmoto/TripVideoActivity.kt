@@ -373,6 +373,9 @@ class TripVideoActivity : AppCompatActivity() {
                 allClips = found
                 if (found.isEmpty()) {
                     status.setText(if (hasVideoAccess()) R.string.tv_none else R.string.tv_no_permission)
+                    if (hasVideoAccess() && TripVideo.lastReport.isNotEmpty()) {
+                        status.text = status.text.toString() + "\n\n" + getString(R.string.tv_none_detail, TripVideo.lastReport)
+                    }
                     list.text = ""
                     clipBox.removeAllViews()
                     return@runOnUiThread
