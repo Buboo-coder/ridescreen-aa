@@ -100,6 +100,13 @@ class TripVideoActivity : AppCompatActivity() {
     // v2.3 · 🗑 deleting a made video goes through Android's own confirmation
     private val confirmDelete = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { refreshMade() }
 
+    // 🎞 clips picked by hand (GoPro, renamed files…): the rider says when each one started
+    private val pickClips = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        if (uris.isNullOrEmpty()) return@registerForActivityResult
+        uris.forEach { try { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {} }
+        askStartTimes(uris, 0, null)
+    }
+
     private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,6 +132,9 @@ class TripVideoActivity : AppCompatActivity() {
         root.addView(clipBox)
         list = body("")
         root.addView(list)
+        root.addView(body(getString(R.string.tv_pick_own_hint)))
+        root.addView(button(getString(R.string.tv_pick_own)) { pickClips.launch(arrayOf("video/*")) }, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6); bottomMargin = dp(10) })
 
         // ── v2.3: the videos already made of this trip (they live in the gallery; found by name)
         madeHeader = header(getString(R.string.tv_made_title)).apply { visibility = View.GONE }
@@ -367,7 +377,9 @@ class TripVideoActivity : AppCompatActivity() {
         status.setText(R.string.tv_searching)
         makeBtn.isEnabled = false; bestBtn.isEnabled = false
         io.execute {
-            val found = TripVideo.findClips(this, trip)
+            val auto = TripVideo.findClips(this, trip)
+            val manual = loadManual().mapNotNull { (u, n, st) -> TripVideo.clipFromUri(this, u, n, st) }
+            val found = (auto.filter { a -> manual.none { it.uri == a.uri } } + manual).sortedBy { it.startMs }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 allClips = found
@@ -389,6 +401,60 @@ class TripVideoActivity : AppCompatActivity() {
     }
 
     // ── v2.3: pick which of the found clips go into the video (all ticked by default).
+
+    // ── clips picked by hand, remembered per trip
+
+    private fun manualKey() = "manual_" + trip.id
+
+    private fun loadManual(): List<Triple<Uri, String, Long>> = try {
+        val arr = org.json.JSONArray(prefs().getString(manualKey(), "[]"))
+        (0 until arr.length()).mapNotNull {
+            val o = arr.optJSONObject(it) ?: return@mapNotNull null
+            Triple(Uri.parse(o.getString("uri")), o.optString("name"), o.getLong("start"))
+        }
+    } catch (_: Exception) { emptyList() }
+
+    private fun saveManual(uri: Uri, name: String, startMs: Long) {
+        val keep = loadManual().filter { it.first != uri } + Triple(uri, name, startMs)
+        val arr = org.json.JSONArray()
+        keep.forEach { arr.put(org.json.JSONObject().put("uri", it.first.toString()).put("name", it.second).put("start", it.third)) }
+        prefs().edit().putString(manualKey(), arr.toString()).apply()
+    }
+
+    /** Ask, one clip at a time, when it started (guess from name/file; next clip follows the previous). */
+    private fun askStartTimes(uris: List<Uri>, i: Int, prevEnd: Long?) {
+        if (i >= uris.size) { scan(); return }
+        val uri = uris[i]
+        io.execute {
+            val name = TripVideo.displayName(this, uri)
+            val info = TripVideo.clipFromUri(this, uri, name, 0L)
+            val guess = TripVideo.guessStart(this, uri, name)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                if (info == null) {
+                    android.widget.Toast.makeText(this, getString(R.string.tv_pick_unusable, name), android.widget.Toast.LENGTH_LONG).show()
+                    askStartTimes(uris, i + 1, prevEnd)
+                    return@runOnUiThread
+                }
+                val window = (trip.start - 3 * 3_600_000L)..(trip.end + 3 * 3_600_000L)
+                val def = prevEnd ?: guess?.takeIf { it in window } ?: trip.start
+                val cal = java.util.Calendar.getInstance().apply { timeInMillis = def }
+                val day = java.util.Calendar.getInstance().apply { timeInMillis = trip.start }
+                val dlg = android.app.TimePickerDialog(this, { _, h, m ->
+                    val c = java.util.Calendar.getInstance().apply {
+                        set(day.get(java.util.Calendar.YEAR), day.get(java.util.Calendar.MONTH), day.get(java.util.Calendar.DAY_OF_MONTH), h, m,
+                            if (h == cal.get(java.util.Calendar.HOUR_OF_DAY) && m == cal.get(java.util.Calendar.MINUTE)) cal.get(java.util.Calendar.SECOND) else 0)
+                        set(java.util.Calendar.MILLISECOND, 0)
+                    }
+                    saveManual(uri, name, c.timeInMillis)
+                    askStartTimes(uris, i + 1, c.timeInMillis + info.durationMs)
+                }, cal.get(java.util.Calendar.HOUR_OF_DAY), cal.get(java.util.Calendar.MINUTE), true)
+                dlg.setTitle(getString(R.string.tv_pick_time_title, name, i + 1, uris.size))
+                dlg.setOnCancelListener { askStartTimes(uris, i + 1, prevEnd) }
+                dlg.show()
+            }
+        }
+    }
 
     private fun excludedKey() = "excluded_" + trip.id
 

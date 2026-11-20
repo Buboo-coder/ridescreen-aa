@@ -154,6 +154,24 @@ object TripVideo {
         return kept.sortedBy { it.startMs }
     }
 
+    /** A clip the rider picked by hand: [startMs] is what the rider said; null when the file can't be read as video. */
+    fun clipFromUri(ctx: Context, uri: Uri, name: String, startMs: Long): Clip? {
+        val meta = metadata(ctx, uri) ?: return null
+        val dur = meta.second
+        if (dur < 1000) return null
+        return Clip(uri, name, startMs, dur, meta.third[0], meta.third[1], meta.third[2])
+    }
+
+    /** Best guess of when a picked file started recording (name, then date inside the file); null if unknown. */
+    fun guessStart(ctx: Context, uri: Uri, name: String): Long? =
+        startFromName(name) ?: startFromCameraId(name) ?: metadata(ctx, uri)?.first
+
+    fun displayName(ctx: Context, uri: Uri): String = try {
+        ctx.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+            if (it.moveToFirst()) it.getString(0) else null
+        } ?: (uri.lastPathSegment ?: "video")
+    } catch (_: Exception) { uri.lastPathSegment ?: "video" }
+
     private fun stamp(ms: Long) = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(ms))
 
     /** Fallback only: the camera's id looks like Unix seconds but is shifted by the local UTC offset (the camera stamps local time as if it were UTC), so the readable date in the name is preferred. */
