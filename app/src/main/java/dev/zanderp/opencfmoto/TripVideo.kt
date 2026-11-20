@@ -126,7 +126,7 @@ object TripVideo {
                     // Phones (and most cameras) name the file after the START of the recording, in
                     // local time — more reliable than the container date, which some apps set to the
                     // end of the clip or to the import time.
-                    val fromName = startFromCameraId(name) ?: startFromName(name)
+                    val fromName = startFromName(name) ?: startFromCameraId(name)
                     val start = fromName ?: meta?.first ?: taken.takeIf { it > 0 } ?: continue
                     LogBus.log("[VIDEO] clip $name: name=${fromName?.let { stamp(it) }} file=${meta?.first?.let { stamp(it) }} " +
                         "taken=${if (taken > 0) stamp(taken) else "-"} added=${stamp(c.getLong(3) * 1000)} dur=${(meta?.second ?: dur) / 1000}s → start ${stamp(start)}")
@@ -156,7 +156,7 @@ object TripVideo {
 
     private fun stamp(ms: Long) = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(ms))
 
-    /** Bike camera files start with the clip's start time as Unix seconds: "1763547480-2026-11-19-…". */
+    /** Fallback only: the camera's id looks like Unix seconds but is shifted by the local UTC offset (the camera stamps local time as if it were UTC), so the readable date in the name is preferred. */
     private fun startFromCameraId(name: String): Long? {
         val m = Regex("""^(\d{10})-20\d{2}-""").find(name) ?: return null
         val sec = m.groupValues[1].toLongOrNull() ?: return null
