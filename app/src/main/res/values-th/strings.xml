@@ -727,4 +727,8 @@
     <string name="dvr_probe_running">กำลังตรวจ ใช้เวลาไม่กี่วินาที…</string>
     <string name="dvr_probe_none">ไม่พบช่องทางภาพสดที่พอร์ตทั่วไป (มีแต่พอร์ตดูคลิปย้อนหลังเท่านั้น)</string>
     <string name="tv_none_detail">ข้อมูลสำหรับตรวจสอบ: %1$s</string>
+    <string name="tv_pick_own">🎞 เลือกวิดีโอเอง</string>
+    <string name="tv_pick_own_hint">ใช้กับวิดีโอจากที่ไหนก็ได้ เช่น GoPro เลือกไฟล์แล้วบอกเวลาเริ่มของแต่ละคลิป</string>
+    <string name="tv_pick_time_title">%1$s (%2$d/%3$d) · เริ่มอัดเวลา</string>
+    <string name="tv_pick_unusable">ใช้ไฟล์นี้ไม่ได้: %1$s</string>
 </resources>
