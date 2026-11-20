@@ -728,4 +728,8 @@
     <string name="dvr_probe_running">Checking, a few seconds…</string>
     <string name="dvr_probe_none">No live-video port found on the usual ports (only the recorded-clip port answers).</string>
     <string name="tv_none_detail">For checking: %1$s</string>
+    <string name="tv_pick_own">🎞 Pick videos myself</string>
+    <string name="tv_pick_own_hint">Works with any video, e.g. GoPro: pick the files, then say when each clip started.</string>
+    <string name="tv_pick_time_title">%1$s (%2$d/%3$d) · started at</string>
+    <string name="tv_pick_unusable">Can\'t use this file: %1$s</string>
 </resources>
